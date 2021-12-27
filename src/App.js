@@ -2,25 +2,46 @@ import s from "./App.module.css";
 import ContactForm from "./Components/ContactForm/ContactForm";
 import Filter from "./Components/Filter/Filter";
 import ContactList from "./Components/ContactList/ContactList";
-import react, { Component } from "react";
+import react, { PureComponent } from "react";
 import shortid from "shortid";
 
-class App extends Component {
+class App extends PureComponent {
   state = {
-    contacts: [
-      { id: "id-1", name: "Rosie Simpson", number: "459-12-56" },
-      { id: "id-2", name: "Hermione Kline", number: "443-89-12" },
-      { id: "id-3", name: "Eden Clements", number: "645-17-79" },
-      { id: "id-4", name: "Annie Copeland", number: "227-91-26" },
-    ],
+    contacts: [],
     filter: "",
+  };
+
+  lContacts = () => {
+    return localStorage.getItem("contacts")
+      ? JSON.parse(localStorage.getItem("contacts"))
+      : [];
+  };
+
+  componentDidMount = () => {
+    console.log("срабатывает в начале");
+
+    const checkContacts = localStorage.getItem("contacts");
+
+    if (checkContacts) {
+      const parsedContacts = JSON.parse(checkContacts);
+
+      this.setState({ contacts: parsedContacts });
+    }
   };
 
   changeFilter = (e) => {
     this.setState({ filter: e.currentTarget.value });
   };
-
+  deleteFromLocaleStorage = (e) => {
+    let updateContacts = this.lContacts().filter(
+      (contacts) => contacts.id !== e
+    );
+    let updatedContacts = JSON.stringify(updateContacts);
+    localStorage.setItem("contacts", updatedContacts);
+  };
   deleteContact = (contactId) => {
+    this.deleteFromLocaleStorage(contactId);
+
     this.setState((prevState) => ({
       contacts: prevState.contacts.filter(
         (contacts) => contacts.id !== contactId
@@ -29,10 +50,13 @@ class App extends Component {
   };
 
   compairContacts = (e) => {
-    let contacts = this.state.contacts;
-    if (contacts.some(({ name }) => name === e)) {
+    if (this.lContacts().some(({ name }) => name === e)) {
       return true;
     }
+    // let contacts = this.state.contacts;
+    // if (contacts.some(({ name }) => name === e)) {
+    //   return true;
+    // }
   };
 
   addContact = (name, number) => {
@@ -41,10 +65,13 @@ class App extends Component {
       name: name,
       number: number,
     };
+    let lContacts = localStorage.getItem("contacts")
+      ? JSON.parse(localStorage.getItem("contacts"))
+      : [];
+    lContacts.unshift(newContact);
+    localStorage.setItem("contacts", JSON.stringify(lContacts));
 
-    this.setState(({ contacts }) => ({
-      contacts: [newContact, ...contacts],
-    }));
+    this.setState({ contacts: lContacts });
   };
 
   findByName = () => {
