@@ -4,11 +4,6 @@ import shortid from "shortid";
 import s from "./ContactForm.module.css";
 
 export default class ContactForm extends Component {
-  constructor(props) {
-    super(props);
-    this.nameInput = react.createRef();
-    this.numberInput = react.createRef();
-  }
   state = {
     name: "",
     number: "",
@@ -21,14 +16,9 @@ export default class ContactForm extends Component {
     this.setState({ number: e.currentTarget.value });
   };
 
-  onClearNameInput() {
-    this.nameInput.current.value = "";
-    this.state.name = "";
-  }
-  onClearNumberInput() {
-    this.numberInput.current.value = "";
-    this.state.number = "";
-  }
+  reset = () => {
+    this.setState({ name: "", number: "" });
+  };
 
   onSumbitButton = (e) => {
     e.preventDefault();
@@ -48,8 +38,7 @@ export default class ContactForm extends Component {
       return alert(`${this.state.name} is already in contacts`);
     }
     this.props.addContact(this.state.name, this.state.number);
-    this.onClearNameInput();
-    this.onClearNumberInput();
+    this.reset();
   };
 
   render() {
@@ -69,6 +58,7 @@ export default class ContactForm extends Component {
             required
             ref={this.nameInput}
             onInput={this.onNameChange}
+            value={this.state.name}
           />
           <label htmlFor={"numberInput"} className={s.form__item}>
             Number
@@ -83,6 +73,7 @@ export default class ContactForm extends Component {
             required
             ref={this.numberInput}
             onInput={this.onNumberChange}
+            value={this.state.number}
           />
           <button type="button" onClick={this.onSumbitButton}>
             Добавить
@@ -93,6 +84,5 @@ export default class ContactForm extends Component {
   }
 }
 ContactForm.propTypes = {
-  name: propTypes.string,
-  number: propTypes.number,
+  addContact: propTypes.func.isRequired,
 };
